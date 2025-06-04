@@ -77,7 +77,7 @@ public class Game {
 
         }
         // Eemaldame ajutised kaitsetsoonid (9-d), jättes alles ainult laevad (1-4) ja tühjad veekohad (0)
-        replaceNineToZero();
+        //replaceNineToZero();
     }
 
     private void replaceNineToZero() {
@@ -131,7 +131,7 @@ public class Game {
         // Kontrollime igat lahtit alal - kui kuskil pole tühjust (0), katkestame
         for (int r = area.startRow; r <= area.endRow; r++) {
             for (int c = area.startCol; c <= area.endCol; c++) {
-                if (boardMatrix[r][c] != 0) return false;  // Midagi on ees, ei sobi
+                if (boardMatrix[r][c] > 0 && boardMatrix[r][c] <= 4) return false; // Midagi on ees, ei sobi
 
             }
         }
