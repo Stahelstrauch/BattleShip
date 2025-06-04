@@ -4,6 +4,7 @@ import models.GameTimer;
 import models.Model;
 import views.View;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -23,11 +24,19 @@ public class MyNewGameListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         // Test  System.out.println("Uus mäng");
         if(!gameTimer.isRunning()) { // Mäng ei käi
-            model.setupNewGame(); //Teeme uue mängu
-            model.getGame().setupGameBoard(); //seadistame mängulaua
-            model.getGame().showGameBoard();
-            view.getBtnNewGame().setText("Katkesta");
-            gameTimer.start();
+            // See on uus lahendus
+            new Thread(() -> {
+                model.setupNewGame(); //Teeme uue mängu
+                model.getGame().setupGameBoard(); //seadistame mängulaua
+                model.getGame().showGameBoard();
+                view.getLblShip().setText(model.getGame().getShipsCounter() + " / " + model.getGame().getShipsParts()); // Sellega kirjutame mitu laeva on kätte saadud mitmest
+                SwingUtilities.invokeLater(() -> {
+                    view.getBtnNewGame().setText("Katkesta");
+                    gameTimer.start();
+                });
+            }).start();
+
+
         }else { // Meil on mäüng pooleli
             gameTimer.stop();
             view.getBtnNewGame().setText("Uus mäng");
