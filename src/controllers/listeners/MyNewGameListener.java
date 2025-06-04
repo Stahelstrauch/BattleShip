@@ -23,6 +23,9 @@ public class MyNewGameListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         // Test  System.out.println("Uus mäng");
         if(!gameTimer.isRunning()) { // Mäng ei käi
+            model.setupNewGame(); //Teeme uue mängu
+            model.getGame().setupGameBoard(); //seadistame mängulaua
+            model.getGame().showGameBoard();
             view.getBtnNewGame().setText("Katkesta");
             gameTimer.start();
         }else { // Meil on mäüng pooleli

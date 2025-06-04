@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Model {
     private int boardSize = 10; // Vaikimisi laua suurus
     private ArrayList<GridData> gridData; // Loome listi
+    private Game game; //Laevade info mängulaual
 
     public Model() {
         gridData = new ArrayList<>(); // See hakkab hoidma ridade, veergude, x,y kordinaatide jne infot
@@ -53,7 +54,9 @@ public class Model {
     }
 
 
-
+    public void setupNewGame() {
+        game = new Game(boardSize);
+    }
 
 
     //GETTERS
@@ -64,6 +67,10 @@ public class Model {
 
     public ArrayList<GridData> getGridData() {
         return gridData;
+    }
+
+    public Game getGame() {
+        return game;
     }
 
     //SETTERS
