@@ -146,6 +146,22 @@ public class Game {
         int endCol = Math.min(boardSize - 1, vertical ? col + 1 : col + length);
         return new Area(startRow, endRow, startCol, endCol);
     }
+
+    /**
+     * Selles lahtri klikkis kasutaja hiirega, kas sai pihta või läks mööda
+     * @param row rida
+     * @param col veerg
+     * @param what millega tegu(7 pihtas, 8 möödas)
+     */
+    public void setUserClick(int row, int col, int what) { // Kus kasutaja klikis
+        if(what == 7) {
+            boardMatrix[row][col] = 7; // Pihtas
+        } else if (what == 8) {
+            boardMatrix[row][col] = 8; // Möödas
+        }
+    }
+
+
     //GETTERS
     // Eemaldame ajutised kaitsetsoonid (9-d), jättes alles ainult laevad (1-4) ja tühjad veekohad (0)
 
@@ -167,5 +183,29 @@ public class Game {
      */
     public int getShipsParts() {
         return IntStream.of(ships).sum();
+    }
+
+    /**
+     * Kas mäng on läbi
+     * @return true kui on läb a false kui ei ole läbi
+     */
+    //Kontrollime kas mäng on läbi - jah või ei
+    public boolean isGameOver() {
+        return getShipsParts() == getShipsCounter(); // kui laevade arv on võrdne klikitud laevade arvuga
+    }
+
+    //SETTERS
+
+    /**
+     * Suurendab leitud laevade kogust etteantud väärtuse võrra
+     * @param shipsCounter etteantud väärtus (1)
+     */
+    public void setShipsCounter(int shipsCounter) {
+        this.shipsCounter += shipsCounter; // + teeb selle, et igakord kui välja kutsud, siis suureneb ühe võrra
+    }
+
+
+    public void setClickCounter(int clickCounter) {
+        this.clickCounter += clickCounter; // + teeb selle, et igakord kui välja kutsud, siis suureneb ühe võrra
     }
 }

@@ -37,8 +37,39 @@ public class Controller implements MouseListener, MouseMotionListener {
 
 
     @Override
-    public void mouseClicked(MouseEvent e) { // seda kasutame
+    public void mouseClicked(MouseEvent e) { // hiireklikimine toimub aint siis kui mäng käib
+        if(gameTimer.isRunning()) { // Kontrollime kas mäng toimub
+            // nendega tuvastatakse kuhu hiirega klikiti
+            int id = model.checkGridIndex(e.getX(), e.getY());
+            int row = model.getRowById(id);
+            int col = model.getColById(id);
+            // Hetke laud
+            int[][] matrix = model.getGame().getBoardMatrix();
+            model.getGame().setClickCounter(1); // Kliki lugeja, siin seadistame selle sammu, et on 1.
+            if(matrix[row][col] == 0) { // 0 on vesi ehk mööda
+                model.getGame().setUserClick(row, col, 8); // ei leita laevu
+                //view.getLblShip().setText(String.format("%d / %d", model.getGame().getShipsCounter(), model.getGame().getShipsParts())); // Muudab infoboardil laevade arvu vastavalt sellele, kas oled pihta saanud mõnele
+            }else if(matrix[row][col] >=1 && matrix[row][col] <= 5) { // Laev on pihta saanud (1-5 on laevad)
+                model.getGame().setUserClick(row, col, 7);// Leitakse laevu
+                model.getGame().setShipsCounter(1); // Laeva osade lugeja
+                view.getLblShip().setText(String.format("%d / %d", model.getGame().getShipsCounter(), model.getGame().getShipsParts())); // Muudab infoboardil laevade arvu vastavalt sellele, kas oled pihta saanud mõnele
+            }
+            // Näita konsooli mängulauda
+            //model.getGame().showGameBoard(); // testiks näitab mängulauda konsooli
+            // Uuenda joonistust
+            view.repaint();
+            //Kontrolli mängu lõppu
+            checkGameOver();
+        }
+    }
 
+    // Kontrollib kas mäng on läbi
+    private void checkGameOver() {
+        if(model.getGame() != null && model.getGame().isGameOver()) {
+            gameTimer.stop(); // Peata aeg
+            view.getBtnNewGame().setText("Uus mäng"); // Muuda nupu teks Katkesta mäng => UUs mäng
+            JOptionPane.showMessageDialog(view, "Mängu aeg: " + gameTimer.formatGameTime()); // Testiks
+        }
     }
 
     @Override

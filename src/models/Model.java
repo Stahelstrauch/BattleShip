@@ -1,5 +1,6 @@
 package models;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class Model {
@@ -56,6 +57,52 @@ public class Model {
 
     public void setupNewGame() {
         game = new Game(boardSize);
+    }
+
+    public void drawUserBoard(Graphics g) { //  Kaasa antakse graafiline joonistuslaud - paintComponentis on see g
+        ArrayList<GridData> gdList = getGridData(); // See loodi mängulaua joonistamisel
+        int [][] matrix = game.getBoardMatrix(); // Siin on laevade info, ja vesi jne
+
+        for(GridData gd : gdList) {
+            int row = gd.getRow(); //Rida
+            int col = gd.getCol(); //veerg
+            int cellValue = matrix[row][col]; // Väärtus: 0, 1-5, 7, 8
+
+            // Määrame värvi ja suuruse sõltuvalt lahtri suuruses (cellValue)
+            Color color = null; // Algselt värvi pole
+            int padding = 0; // Objekt on aga väärtus pole
+
+            switch(cellValue) { // Väärtus saab olla 0, 1-5, 7, 8
+                case 0: // Vesi
+                    color = new Color(0, 190, 255);
+                    break;
+                case 7: // Pihtas
+                    color = Color.GREEN;
+                    break;
+                case 8: //Mööda
+                    color = Color.RED;
+                    padding = 3;
+                    break;
+                default:
+                    if(cellValue >= 1 && cellValue <= 5) { // Laevad 1-5
+                        //Kommenteeri välja kui ei soovi mängulaual laevu näha
+                        color = new Color(246, 246, 5, 237);
+
+                    }
+
+            }
+            // Kui värv on määratud, joonista ruut
+            if(color != null) {
+                g.setColor(color); // Määra värv
+                g.fillRect(
+                        gd.getX() + padding,
+                        gd.getY() + padding,
+                        gd.getWidth() - 2 * padding,
+                        gd.getHeight() -2 * padding
+                );
+
+            }
+        }
     }
 
 

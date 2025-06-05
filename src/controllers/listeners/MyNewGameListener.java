@@ -28,7 +28,7 @@ public class MyNewGameListener implements ActionListener {
             new Thread(() -> {
                 model.setupNewGame(); //Teeme uue mängu
                 model.getGame().setupGameBoard(); //seadistame mängulaua
-                model.getGame().showGameBoard();
+                //model.getGame().showGameBoard(); //Testiks näitas konsooli mängulauda numbritega
                 view.getLblShip().setText(model.getGame().getShipsCounter() + " / " + model.getGame().getShipsParts()); // Sellega kirjutame mitu laeva on kätte saadud mitmest
                 SwingUtilities.invokeLater(() -> {
                     view.getBtnNewGame().setText("Katkesta");

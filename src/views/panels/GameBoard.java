@@ -17,7 +17,7 @@ public class GameBoard extends JPanel {
 
     public GameBoard(Model model) { // Konstruktor
         this.model = model;
-        setBackground(new Color(105, 186, 193));
+        setBackground(new Color(0, 190, 255));
     }
 
     @Override
@@ -39,6 +39,12 @@ public class GameBoard extends JPanel {
 
         // Vasakule serva numbrid ruutudega
         drawRowColumn(g);
+
+        //Hakkame joonistama laevu
+        //TODO pole kõige parem lahendus
+        if(model.getGame() != null && !model.getGame().isGameOver()) {
+            model.drawUserBoard(g);
+        }
 
         // Täidab ülejäänud ruudustiku
         drawGameGrid(g);
