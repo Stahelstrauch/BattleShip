@@ -32,6 +32,8 @@ public class MyNewGameListener implements ActionListener {
                 view.getLblShip().setText(model.getGame().getShipsCounter() + " / " + model.getGame().getShipsParts()); // Sellega kirjutame mitu laeva on kätte saadud mitmest
                 SwingUtilities.invokeLater(() -> {
                     view.getBtnNewGame().setText("Katkesta");
+                    //TODO Kui ma panen siia selle komboboxi kinni olemise siis ei saa ka edetabelit vaadatates peale mängu seda mängulauda muuta.
+
                     view.getCmbSize().setEnabled(false);
                     gameTimer.start();
                 });

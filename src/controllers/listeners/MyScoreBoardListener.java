@@ -13,6 +13,8 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -27,22 +29,23 @@ public class MyScoreBoardListener implements ActionListener {
         this.model = model;
         this.view = view;
     }
+
     public void actionPerformed(ActionEvent e) {
         // System.out.println("Edetabel"); // test konsooli kuvamiseks
         ArrayList<ScoreData> result;
-        if(view.getRdoFile().isSelected()) { // Raadionuppude valikust on valitud fail
+        if (view.getRdoFile().isSelected()) { // Raadionuppude valikust on valitud fail
             result = model.readFromFile(); // Loe faili sisu massiivi
-            if(createTable(result)) {
+            if (createTable(result)) {
                 setupDlgScoreBoard();
             } else {
                 JOptionPane.showMessageDialog(view, "Andmeid pole!");
             }
         } else { // Kui on valitud nupp andmebaas (see on default sest kui sa ei vali fail siis valid järelikult andmebaas)
-            try(Database db = new Database(model)) {
+            try (Database db = new Database(model)) {
                 result = db.select(model.getBoardSize());
-                if(!result.isEmpty() && createTableDb(result)) {
+                if (!result.isEmpty() && createTableDb(result)) {
                     setupDlgScoreBoard();
-                }else {
+                } else {
                     JOptionPane.showMessageDialog(view, "Andmebaasi tabel on tühi!");
                 }
             } catch (Exception ex) {
@@ -52,9 +55,9 @@ public class MyScoreBoardListener implements ActionListener {
     }
 
     private boolean createTableDb(ArrayList<ScoreData> result) {
-        if(!result.isEmpty()) {
+        if (!result.isEmpty()) {
             String[][] data = new String[result.size()][5]; // result.size on ridade arv, 5 on veergude arv
-            for(int i = 0; i < result.size(); i++) { // Käime läbi for-loobiga iga rea
+            for (int i = 0; i < result.size(); i++) { // Käime läbi for-loobiga iga rea
                 data[i][0] = result.get(i).getName();
                 data[i][1] = result.get(i).formatGameTime(result.get(i).getTime());
                 data[i][2] = String.valueOf(result.get(i).getClicks());
@@ -75,6 +78,28 @@ public class MyScoreBoardListener implements ActionListener {
 
             //TODO Tabelil klikkimine
 
+            table.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getClickCount() == 2 && !e.isConsumed()) {
+                        e.consume();
+                        int row = table.rowAtPoint(e.getPoint());
+                        int col = table.columnAtPoint(e.getPoint());
+                        // Näita kogu rida
+                        StringBuilder rowData = new StringBuilder();
+                        for (int i = 0; i < table.getColumnCount(); i++) {
+                            rowData.append(table.getValueAt(row, i)).append(" | ");
+
+                        }
+                        JOptionPane.showMessageDialog(table, "Valitud rida\n" + rowData);
+
+                        //ainult lahti sisu
+                        Object cellObject = table.getValueAt(row, col);
+                        JOptionPane.showMessageDialog(table, "Valitud lahter\n" + cellObject);
+                    }
+                }
+            });
+
             //Teeme tabeli päise rasvaseks
             JTableHeader header = table.getTableHeader();
             Font headerFont = header.getFont().deriveFont(Font.BOLD);
@@ -82,7 +107,7 @@ public class MyScoreBoardListener implements ActionListener {
 
             //Määrame veergude laiuse
             int[] columnWidths = {100, 120, 80, 90, 150};
-            for(int i = 0; i < columnWidths.length; i++) {
+            for (int i = 0; i < columnWidths.length; i++) {
                 table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]); // Määrame igale veerule tema laiuse
 
             }
@@ -90,7 +115,7 @@ public class MyScoreBoardListener implements ActionListener {
             // Joondame alates teisest veerust paremale serva
             DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
             rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
-            for(int i = 1; i < model.getColumnNames().length; i++) {
+            for (int i = 1; i < model.getColumnNames().length; i++) {
                 table.getColumnModel().getColumn(i).setCellRenderer(rightRenderer);
             }
 
@@ -112,7 +137,7 @@ public class MyScoreBoardListener implements ActionListener {
             Collections.sort(result); // sorteerib vastavalt compareTo(9 ScoreData
             // Loome kahemõõtmelise stringide massiivi
             String[][] data = new String[result.size()][5]; // result.size on ridade arv, 5 on veergude arv
-            for(int i = 0; i < result.size(); i++) { // Käime läbi for-loobiga iga rea
+            for (int i = 0; i < result.size(); i++) { // Käime läbi for-loobiga iga rea
                 data[i][0] = result.get(i).getName();
                 data[i][1] = result.get(i).formatGameTime(result.get(i).getTime());
                 data[i][2] = String.valueOf(result.get(i).getClicks());
@@ -125,7 +150,7 @@ public class MyScoreBoardListener implements ActionListener {
 
             //Määrame veergude laiuse
             int[] columnWidths = {100, 80, 60, 80, 160};
-            for(int i = 0; i < columnWidths.length; i++) {
+            for (int i = 0; i < columnWidths.length; i++) {
                 table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]); // Määrame igale veerule tema laiuse
             }
 
