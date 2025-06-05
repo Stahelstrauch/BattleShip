@@ -8,8 +8,8 @@ public class Game {
     private int[][] boardMatrix; //Mängulaeval asuvad laevad
     private Random random = new Random(); // Juhuslikkuse jaoks
     //private int[] ships = {4, 3, 3, 2, 2, 2, 1}; // Laeva pikkus (US)
-    //private int [] ships = {5, 4, 4, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 1}; //Õpilased
-    private int[] ships = {4, 3, 3, 2, 2, 2, 1, 1, 1, 1}; //EE variant
+    private int [] ships = {5, 4, 4, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 1}; //Õpilased
+    //private int[] ships = {4, 3, 3, 2, 2, 2, 1, 1, 1, 1}; //EE variant
     private int shipsCounter = 0; // Laevu kokku
     private int clickCounter = 0; //Mitu korda klikiti mäüngus
 
@@ -57,7 +57,7 @@ public class Game {
                     int c = (startCol + cOffset) % boardSize;
 
                     boolean vertical = random.nextBoolean(); //Määrame juhusliku suuna true = vertical, false= horizontal
-                    if (tryPlaceShip(r, c, length, vertical || tryPlaceShip(r, c, length, !vertical))) {
+                    if (tryPlaceShip(r, c, length, vertical) || tryPlaceShip(r, c, length, !vertical)) {
                         placed = true; //Laev paigutatud
                         break outerLoop; //Katkesta mõlemad for-loop kordused
                     }
@@ -77,7 +77,7 @@ public class Game {
 
         }
         // Eemaldame ajutised kaitsetsoonid (9-d), jättes alles ainult laevad (1-4) ja tühjad veekohad (0)
-        //replaceNineToZero();
+        replaceNineToZero();
     }
 
     private void replaceNineToZero() {
@@ -131,7 +131,7 @@ public class Game {
         // Kontrollime igat lahtit alal - kui kuskil pole tühjust (0), katkestame
         for (int r = area.startRow; r <= area.endRow; r++) {
             for (int c = area.startCol; c <= area.endCol; c++) {
-                if (boardMatrix[r][c] > 0 && boardMatrix[r][c] <= 4) return false; // Midagi on ees, ei sobi
+                if (boardMatrix[r][c] > 0 && boardMatrix[r][c] <= 5) return false; // Tegime lause ringi nii et lubaks kaitsealal kattuda, st et kahe laeva vahel on min 1 kaitseruut
 
             }
         }
