@@ -2,12 +2,18 @@ package controllers;
 
 import controllers.listeners.MyComboBoxListener;
 import controllers.listeners.MyNewGameListener;
+import controllers.listeners.MyScoreBoardListener;
+import models.Database;
 import models.GameTimer;
 import models.Model;
 import views.View;
 
 import javax.swing.*;
 import java.awt.event.*;
+import java.io.*;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Controller implements MouseListener, MouseMotionListener {
     private Model model;
@@ -33,6 +39,7 @@ public class Controller implements MouseListener, MouseMotionListener {
         //Listenerid
         view.registerComboBox(new MyComboBoxListener(model, view)); //Lisab comboboxi asjad faili listeneri kaustas
         view.registerNewGameButton(new MyNewGameListener(model, view, gameTimer)); //nupu vajutuse kuulaja
+        view.registerScoreBoardButton(new MyScoreBoardListener(model, view));
     }
 
 
@@ -68,7 +75,71 @@ public class Controller implements MouseListener, MouseMotionListener {
         if(model.getGame() != null && model.getGame().isGameOver()) {
             gameTimer.stop(); // Peata aeg
             view.getBtnNewGame().setText("Uus mäng"); // Muuda nupu teks Katkesta mäng => UUs mäng
-            JOptionPane.showMessageDialog(view, "Mängu aeg: " + gameTimer.formatGameTime()); // Testiks
+            // JOptionPane.showMessageDialog(view, "Mängu aeg: " + gameTimer.formatGameTime()); // Testiks
+            //Küsime mängija nime
+            String name = JOptionPane.showInputDialog(view, "Kuidas on mängija nimi?", "Mäng on läbi!", JOptionPane.INFORMATION_MESSAGE); // view= paneb põhipaneeli peale
+            if(name == null) {
+                name = "Teadmata";
+            }
+            if(name.trim().isEmpty()) { // Trim võtab tühikud ära
+                name = " Teadmata"; // Kui nimi jäetakse tühjaks (või on aint tühikud), siis pannakse nimeks teadmata
+
+            }
+            // Faili lisamine
+            saveEntryToFile(name.trim()); //Faili kirjutamine
+
+            //andmebaasi lisamine
+            saveEntryToTable(name.trim());
+
+        }
+    }
+
+    private void saveEntryToTable(String name) {
+        try (Database db = new Database(model)) {
+            db.insert(name, gameTimer.getElapsedSeconds(), model.getGame().getClickCounter(), model.getBoardSize(), LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public void saveEntryToFile(String name) {
+        if(model.checkFileExistsAndContent()) {
+            // Fail on olemas kirjutame sisu faili
+            File file = new File(model.getScoreFile());
+            try (FileWriter fw = new FileWriter(file, true)) { // append: true - lisab faili lõppu juurde, false(või mittemidagi) - kirjutab üle
+                BufferedWriter bw = new BufferedWriter(fw);
+                PrintWriter pw = new PrintWriter(bw);
+                int time = gameTimer.getElapsedSeconds();
+                int clicks = model.getGame().getClickCounter();
+                int board = model.getBoardSize();
+                String dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                String dataLine = String.join(";", name, String.valueOf(time), String.valueOf(clicks), String.valueOf(board), dateTime); // Teeme kõik andmd reaks kokku, int asjad tuleb stringiks teha
+                pw.println(dataLine); // Kirjuta faili
+                pw.close(); // Sulge fail
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        } else { // Edetabeli faili pole või pole sisu, siis tuleb luua fail ja kirjutada ka päis
+            File file = new File(model.getScoreFile());
+            try (FileWriter fw = new FileWriter(file, true)) { // append: true - lisab faili lõppu juurde, false(või mittemidagi) - kirjutab üle
+                BufferedWriter bw = new BufferedWriter(fw);
+                PrintWriter pw = new PrintWriter(bw);
+                pw.println(String.join(";", model.getColumnNames())); // uus
+                int time = gameTimer.getElapsedSeconds();
+                int clicks = model.getGame().getClickCounter();
+                int board = model.getBoardSize();
+                String dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                String dataLine = String.join(";", name, String.valueOf(time), String.valueOf(clicks), String.valueOf(board), dateTime); // Teeme kõik andmd reaks kokku, int asjad tuleb stringiks teha
+                pw.println(dataLine); // Kirjuta faili
+                pw.close(); // Sulge fail
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
         }
     }
 

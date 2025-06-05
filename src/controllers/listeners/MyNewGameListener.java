@@ -32,6 +32,7 @@ public class MyNewGameListener implements ActionListener {
                 view.getLblShip().setText(model.getGame().getShipsCounter() + " / " + model.getGame().getShipsParts()); // Sellega kirjutame mitu laeva on kätte saadud mitmest
                 SwingUtilities.invokeLater(() -> {
                     view.getBtnNewGame().setText("Katkesta");
+                    view.getCmbSize().setEnabled(false);
                     gameTimer.start();
                 });
             }).start();
@@ -40,6 +41,7 @@ public class MyNewGameListener implements ActionListener {
         }else { // Meil on mäüng pooleli
             gameTimer.stop();
             view.getBtnNewGame().setText("Uus mäng");
+            view.getCmbSize().setEnabled(true);
         }
     }
 }

@@ -95,4 +95,8 @@ public class View extends JFrame {
     public void registerNewGameButton(ActionListener actionListener) {
         infoBoard.getBtnNewGame().addActionListener(actionListener); // Nupu klikimise funktsionaalsus
     }
+
+    public void registerScoreBoardButton(ActionListener actionListener) {
+        infoBoard.getBtnScoreBoard().addActionListener(actionListener);
+    }
 }

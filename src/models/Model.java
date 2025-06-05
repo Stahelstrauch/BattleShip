@@ -1,12 +1,22 @@
 package models;
 
 import java.awt.*;
+import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Model {
     private int boardSize = 10; // Vaikimisi laua suurus
     private ArrayList<GridData> gridData; // Loome listi
     private Game game; //Laevade info mängulaual
+    //Edetabeli failiga seotud muutujad
+    private String scoreFile = "scores.txt"; //Edetabeli fail
+    private String[] columnNames = new String []{"Nimi", "Aeg", "Klikke", "Laua suurus", "Mängu aeg"}; // lahtrite pealkirjad
+    //Edetabeli andmebaasiga seotud muutujad
+    private String scoreDatabase = "scores.db"; // Andmebaas
+    private String scoreTable = "scores"; // tabel andmebaasis
+
 
     public Model() {
         gridData = new ArrayList<>(); // See hakkab hoidma ridade, veergude, x,y kordinaatide jne infot
@@ -105,6 +115,63 @@ public class Model {
         }
     }
 
+    /**
+     * Edetabeli faili olemasoli ja siu kontroll
+     * @return  true kui on korras, false kui pole
+     */
+    public boolean checkFileExistsAndContent() {
+        File file = new File(scoreFile); // Tee scores.txt file objektiks
+        if(!file.exists()) {// Kui faili pole, siis
+            return false; // ....tagastab false
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(scoreFile))) {
+            String line =br.readLine(); // Loeme esimese rea failist
+            if(line == null) {
+                return false; // Ridu pole üldse
+            }
+            String[] columns = line.split(";"); // Tükeldame semikoolonist
+            return columns.length == columnNames.length; // Lihtsustatud if lause
+
+        } catch (IOException e) {
+            // throw new RuntimeException(e); // Muidu lõpetab programm igasuguse töö
+            return false;
+        }
+    }
+
+    /**
+     * Edetabeli faili sisu loetakse massiivi ja tagastatakse
+     * @return ScoreData list(edetabeli info)
+     */
+    public ArrayList<ScoreData> readFromFile() {
+        ArrayList<ScoreData> scoreData = new ArrayList<>();
+        File file = new File(scoreFile);
+        if(file.exists()) { // Kui fail on olemas
+            try (BufferedReader br = new BufferedReader(new FileReader(scoreFile))){
+                int lineNumber = 0; // Rea number
+                for(String line; (line = br.readLine()) != null;) {
+                    if(lineNumber > 0) { // Alustame teisest reast, esimene on pealkiri
+                        String[] columns = line.split(";"); // Tükeldame semikoolonist
+                        if(Integer.parseInt(columns[3]) == boardSize) { // Teeb kolmanda veeru ehk mängulaua suuruse Stringist täisarvuks ja võrdleb mängulaua suurusega, selleks et näitaks edetabelis ainult sama suure lauaga mänginuid
+                            String name = columns[0];
+                            int gameTime = Integer.parseInt(columns[1]);
+                            int clicks = Integer.parseInt(columns[2]);
+                            int board = Integer.parseInt(columns[3]);
+                            LocalDateTime played = LocalDateTime.parse(columns[4], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); // Muudab selle DatetIme objektiks
+                            scoreData.add(new ScoreData(name, gameTime, clicks, board, played)); // Lisab info scoredatasse
+                        }
+
+                    }
+                    lineNumber++; //Reanumber peab kasvama
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return scoreData; // Tagasta sisu
+    }
+
+
 
     //GETTERS
 
@@ -120,6 +187,22 @@ public class Model {
         return game;
     }
 
+    public String getScoreFile() {
+        return scoreFile;
+    }
+
+    public String[] getColumnNames() {
+        return columnNames;
+    }
+
+    public String getScoreDatabase() {
+        return scoreDatabase;
+    }
+
+    public String getScoreTable() {
+        return scoreTable;
+    }
+
     //SETTERS
 
     public void setBoardSize(int boardSize) {
@@ -129,4 +212,6 @@ public class Model {
     public void setGridData(ArrayList<GridData> gridData) {
         this.gridData = gridData;
     }
+
+
 }
