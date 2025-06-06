@@ -67,6 +67,7 @@ public class Controller implements MouseListener, MouseMotionListener {
             view.repaint();
             //Kontrolli mängu lõppu
             checkGameOver();
+
         }
     }
 
@@ -85,6 +86,8 @@ public class Controller implements MouseListener, MouseMotionListener {
                 name = " Teadmata"; // Kui nimi jäetakse tühjaks (või on aint tühikud), siis pannakse nimeks teadmata
 
             }
+            view.getCmbSize().setEnabled(true);
+            view.getBtnScoreBoard().setEnabled(true);
             // Faili lisamine
             saveEntryToFile(name.trim()); //Faili kirjutamine
 
