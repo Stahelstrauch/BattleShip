@@ -99,4 +99,8 @@ public class View extends JFrame {
     public void registerScoreBoardButton(ActionListener actionListener) {
         infoBoard.getBtnScoreBoard().addActionListener(actionListener);
     }
+
+    public GameBoard getGameBoard() { // Getter vajalik, et saaks ligipääsu GameBoardile
+        return gameBoard;
+    }
 }

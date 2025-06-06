@@ -42,7 +42,7 @@ public class GameBoard extends JPanel {
 
         //Hakkame joonistama laevu
         //TODO pole kõige parem lahendus
-        if(model.getGame() != null && !model.getGame().isGameOver()) {
+        if(model.getGame() != null) { //Selleks, et mängu lõppedes tulemus ei kaoks tuli && !model.getGame().isGameOver() osa ära võtta
             model.drawUserBoard(g);
         }
 

@@ -33,8 +33,8 @@ public class MyNewGameListener implements ActionListener {
                 SwingUtilities.invokeLater(() -> {
                     view.getBtnNewGame().setText("Katkesta");
                     view.getBtnScoreBoard().setEnabled(false);
-
                     view.getCmbSize().setEnabled(false);
+                    view.getGameBoard().repaint(); // Panin selle rea juurde, et ta puhastaks mängulaua vanast mängutulemusest
                     gameTimer.start();
                 });
             }).start();

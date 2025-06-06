@@ -44,7 +44,7 @@ public class Controller implements MouseListener, MouseMotionListener {
 
 
     @Override
-    public void mouseClicked(MouseEvent e) { // hiireklikimine toimub aint siis kui mäng käib
+    public void mouseClicked(MouseEvent e) {// hiireklikimine toimub aint siis kui mäng käib
         if(gameTimer.isRunning()) { // Kontrollime kas mäng toimub
             // nendega tuvastatakse kuhu hiirega klikiti
             int id = model.checkGridIndex(e.getX(), e.getY());
@@ -64,9 +64,10 @@ public class Controller implements MouseListener, MouseMotionListener {
             // Näita konsooli mängulauda
             //model.getGame().showGameBoard(); // testiks näitab mängulauda konsooli
             // Uuenda joonistust
-            view.repaint();
             //Kontrolli mängu lõppu
             checkGameOver();
+            view.repaint();
+
 
         }
     }
