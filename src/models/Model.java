@@ -67,6 +67,7 @@ public class Model {
 
     public void setupNewGame() {
         game = new Game(boardSize);
+        gridData = new ArrayList<>();
     }
 
     public void drawUserBoard(Graphics g) { //  Kaasa antakse graafiline joonistuslaud - paintComponentis on see g
@@ -213,5 +214,7 @@ public class Model {
         this.gridData = gridData;
     }
 
-
+    public void setGame(Game game) {
+        this.game = game;
+    }
 }

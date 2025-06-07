@@ -5,6 +5,7 @@ import views.View;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
 
 public class MyComboBoxListener implements ItemListener {
     private Model model;
@@ -24,10 +25,13 @@ public class MyComboBoxListener implements ItemListener {
             String number = e.getItem().toString(); // teeb stringiks väärtuse
             int size = Integer.parseInt(number); //Tee eelnev string täisarvuks
             view.getLblGameBoard().setText(String.valueOf(size + " x " + size));
-            model.setBoardSize(size); //Määrab mäbgulaua suuruse
-            view.pack(); // Et suurus muutuks
-            view.repaint(); // Joonista uuesti
+            model.setBoardSize(size); //Määrab mängulaua suuruse
+            model.setGame(null); // Paneb vana mängu nulli
+            model.setGridData(new ArrayList<>()); // Teeb uue gridata ( mänguinfo) listi
 
+            view.pack(); // Et suurus muutuks
+            //view.repaint(); // Joonista uuesti
+            view.getGameBoard().repaint(); // teeb tühjaks
         }
     }
 }
