@@ -28,6 +28,15 @@ public class View extends JFrame {
 
         add(container); // Paneme konteineri peale
 
+        //TODO Siin saab korda sättida selle minim suuruse, aga oleks vaja saada see kuidagi õigesti konksu
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+
+        this.setMinimumSize(new Dimension(775,400));
+        this.pack();
+
+        this.setVisible(true);
+
         //TEST Frame ja Panel Layout Managerid
 //        System.out.println("JFrame:        " + this.getLayout());
 //        System.out.println("container:     " + container.getLayout());
