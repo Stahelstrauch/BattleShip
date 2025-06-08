@@ -33,26 +33,62 @@ public class MyScoreBoardListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         // System.out.println("Edetabel"); // test konsooli kuvamiseks
         ArrayList<ScoreData> result;
-        if (view.getRdoFile().isSelected()) { // Raadionuppude valikust on valitud fail
-            result = model.readFromFile(); // Loe faili sisu massiivi
-            if (createTable(result)) {
-                setupDlgScoreBoard();
-            } else {
-                JOptionPane.showMessageDialog(view, "Andmeid pole!");
-            }
-        } else { // Kui on valitud nupp andmebaas (see on default sest kui sa ei vali fail siis valid järelikult andmebaas)
-            try (Database db = new Database(model)) {
-                result = db.select(model.getBoardSize());
-                if (!result.isEmpty() && createTableDb(result)) {
+        if (view.getInfoBoard().getChcWhere().isSelected()) {
+            if (view.getRdoFile().isSelected()) { // Raadionuppude valikust on valitud fail
+                result = model.readFromFile(); // Loe faili sisu massiivi
+                if (createTable(result)) {
                     setupDlgScoreBoard();
                 } else {
-                    JOptionPane.showMessageDialog(view, "Andmebaasi tabel on tühi!");
+                    JOptionPane.showMessageDialog(view, "Andmeid pole!");
                 }
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
+            } else { // Kui on valitud nupp andmebaas (see on default sest kui sa ei vali fail siis valid järelikult andmebaas)
+                try (Database db = new Database(model)) {
+                    result = db.select(model.getBoardSize());
+                    if (!result.isEmpty() && createTableDb(result)) {
+                        setupDlgScoreBoard();
+                    } else {
+                        JOptionPane.showMessageDialog(view, "Andmebaasi tabel on tühi!");
+                    }
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             }
+        } else {
+            // System.out.println("Eraldi aknas ei ole checkitud"); test
+            JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            panel.add(view.getInfoBoard());
+            panel.add(view.getGameBoard());
+            view.repaint();
+
+            if (view.getRdoFile().isSelected()) {
+                result = model.readFromFile();
+                if (!result.isEmpty()) {
+                    JTable table = createTableFromFileData(result);
+                    createTableToMainView(table, "Edetabel failist");
+                } else {
+                    JOptionPane.showMessageDialog(view, "Andmeid pole failis!");
+                }
+            } else {
+                try (Database db = new Database(model)) {
+                    result = db.select(model.getBoardSize());
+                    if (!result.isEmpty()) {
+                        JTable table = createTableFromFileData(result); // Võid teha ka eraldi meetodi DB jaoks
+                        createTableToMainView(table, "Edetabel andmebaasist");
+                    } else {
+                        JOptionPane.showMessageDialog(view, "Andmebaasi tabel on tühi!");
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(view, "Viga andmebaasiga: " + ex.getMessage());
+                }
+            }
+
+
+
         }
     }
+
+
 
     private boolean createTableDb(ArrayList<ScoreData> result) {
         if (!result.isEmpty()) {
@@ -171,4 +207,76 @@ public class MyScoreBoardListener implements ActionListener {
         dlgScoreBoard.setLocationRelativeTo(null); // Paigutame keset ekraani
         dlgScoreBoard.setVisible(true); // Teeme nähtavaks
     }
+
+    private void createTableToMainView(JTable table, String title) {
+        // Tabelipaneeli loomine
+        JPanel tablePanel = new JPanel(new BorderLayout());
+        tablePanel.setBorder(BorderFactory.createTitledBorder(title));
+        tablePanel.add(new JScrollPane(table), BorderLayout.CENTER);
+
+        // Sulgemisnupp
+        JButton closeButton = new JButton("Sulge");
+        closeButton.addActionListener(e -> {
+            //Vajutamisel taasta mängulaud
+            Container contentPane = view.getContentPane();
+            contentPane.removeAll();
+            contentPane.add(view.getInfoBoard(), BorderLayout.NORTH);
+            contentPane.add(view.getGameBoard(), BorderLayout.CENTER);
+            contentPane.repaint();
+        });
+
+        // Nupupaneel alla paremasse nurka
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(closeButton);
+        tablePanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Lisa
+        Container contentPane = view.getContentPane();
+        contentPane.removeAll();
+        contentPane.setLayout(new BorderLayout());
+        contentPane.add(tablePanel, BorderLayout.CENTER);
+        contentPane.revalidate();
+        contentPane.repaint();
+    }
+
+
+    private JTable createTableFromFileData(ArrayList<ScoreData> result) {
+        if (result.isEmpty()) return null;
+
+        Collections.sort(result);
+        String[][] data = new String[result.size()][5];
+        for (int i = 0; i < result.size(); i++) {
+            data[i][0] = result.get(i).getName();
+            data[i][1] = result.get(i).formatGameTime(result.get(i).getTime());
+            data[i][2] = String.valueOf(result.get(i).getClicks());
+            data[i][3] = String.valueOf(result.get(i).getBoard());
+            data[i][4] = result.get(i).getPlayedTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+        }
+
+        DefaultTableModel model = new DefaultTableModel(data, this.model.getColumnNames()) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        JTable table = new JTable(model);
+        table.getTableHeader().setFont(table.getTableHeader().getFont().deriveFont(Font.BOLD));
+
+        // Joondus ja veerulaius
+        int[] columnWidths = {100, 80, 60, 80, 160};
+        for (int i = 0; i < columnWidths.length; i++) {
+            table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+        }
+
+        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+        rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
+        for (int i = 1; i < this.model.getColumnNames().length; i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(rightRenderer);
+        }
+
+        return table;
+    }
+
+
 }

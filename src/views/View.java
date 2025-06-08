@@ -28,6 +28,7 @@ public class View extends JFrame {
 
         add(container); // Paneme konteineri peale
 
+
         // Aknal on minimum suurus, millest väiksemaks teh ei saa.
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setMinimumSize(new Dimension(775,400));
@@ -41,6 +42,7 @@ public class View extends JFrame {
 //        System.out.println("InfoBoard:     " + infoBoard.getLayout());
 //        System.out.println("pnlComponents: " + infoBoard.getPnlComponent().getLayout());
     }
+
 
     public JLabel getLblMouseXY() {
         return infoBoard.getLblMouseXY();
@@ -109,4 +111,10 @@ public class View extends JFrame {
     public GameBoard getGameBoard() { // Getter vajalik, et saaks ligipääsu GameBoardile
         return gameBoard;
     }
+
+    public InfoBoard getInfoBoard() {
+        return infoBoard;
+    }
+
+
 }
