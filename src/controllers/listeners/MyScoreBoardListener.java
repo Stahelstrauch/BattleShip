@@ -216,14 +216,8 @@ public class MyScoreBoardListener implements ActionListener {
 
         // Sulgemisnupp
         JButton closeButton = new JButton("Sulge");
-        closeButton.addActionListener(e -> {
-            //Vajutamisel taasta mängulaud
-            Container contentPane = view.getContentPane();
-            contentPane.removeAll();
-            contentPane.add(view.getInfoBoard(), BorderLayout.NORTH);
-            contentPane.add(view.getGameBoard(), BorderLayout.CENTER);
-            contentPane.repaint();
-        });
+        closeButton.addActionListener(e -> view.showMainGameView());
+
 
         // Nupupaneel alla paremasse nurka
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));

@@ -42,6 +42,18 @@ public class View extends JFrame {
 //        System.out.println("InfoBoard:     " + infoBoard.getLayout());
 //        System.out.println("pnlComponents: " + infoBoard.getPnlComponent().getLayout());
     }
+    public void showMainGameView() {
+        getContentPane().removeAll(); // Eemalda kõik varasemad osad
+
+        JPanel container = new JPanel(new BorderLayout());
+        container.add(gameBoard, BorderLayout.CENTER);
+        container.add(infoBoard, BorderLayout.EAST);
+
+        add(container); // Lisa uuesti container
+        revalidate(); // Taasta paigutus
+        repaint();    // Värskenda vaadet
+    }
+
 
 
     public JLabel getLblMouseXY() {
