@@ -97,7 +97,7 @@ public class Model {
                 default:
                     if(cellValue >= 1 && cellValue <= 5) { // Laevad 1-5
                         //Kommenteeri välja kui ei soovi mängulaual laevu näha
-                        color = new Color(246, 246, 5, 237);
+                        color = new Color(0, 190, 255);
 
                     }
 
