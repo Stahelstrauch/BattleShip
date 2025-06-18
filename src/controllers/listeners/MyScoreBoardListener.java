@@ -15,14 +15,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class MyScoreBoardListener implements ActionListener {
-    private Model model;
-    private View view;
+    private final Model model;
+    private final View view;
     private JDialog dlgScoreBoard; // Edetabeli aken (JDialog)
 
     public MyScoreBoardListener(Model model, View view) {
@@ -30,51 +29,51 @@ public class MyScoreBoardListener implements ActionListener {
         this.view = view;
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
-        // System.out.println("Edetabel"); // test konsooli kuvamiseks
         ArrayList<ScoreData> result;
+
+        // Kui kasutaja soovib näha edetabelit eraldi aknas
         if (view.getInfoBoard().getChcWhere().isSelected()) {
-            if (view.getRdoFile().isSelected()) { // Raadionuppude valikust on valitud fail
-                result = model.readFromFile(); // Loe faili sisu massiivi
+            if (view.getRdoFile().isSelected()) {
+                result = model.readFromFile();
                 if (createTable(result)) {
                     setupDlgScoreBoard();
                 } else {
-                    JOptionPane.showMessageDialog(view, "Andmeid pole!");
-                }
-            } else { // Kui on valitud nupp andmebaas (see on default sest kui sa ei vali fail siis valid järelikult andmebaas)
-                try (Database db = new Database(model)) {
-                    result = db.select(model.getBoardSize());
-                    if (!result.isEmpty() && createTableDb(result)) {
-                        setupDlgScoreBoard();
-                    } else {
-                        JOptionPane.showMessageDialog(view, "Andmebaasi tabel on tühi!");
-                    }
-                } catch (Exception ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-        } else {
-            // System.out.println("Eraldi aknas ei ole checkitud"); test
-            JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-            panel.add(view.getInfoBoard());
-            panel.add(view.getGameBoard());
-            view.repaint();
-
-            if (view.getRdoFile().isSelected()) {
-                result = model.readFromFile();
-                if (!result.isEmpty()) {
-                    JTable table = createTableFromFileData(result);
-                    createTableToMainView(table, "Edetabel failist");
-                } else {
                     JOptionPane.showMessageDialog(view, "Andmeid pole failis!");
                 }
-            } else {
+            } else { // andmebaas
                 try (Database db = new Database(model)) {
                     result = db.select(model.getBoardSize());
-                    if (!result.isEmpty()) {
-                        JTable table = createTableFromFileData(result); // Võid teha ka eraldi meetodi DB jaoks
-                        createTableToMainView(table, "Edetabel andmebaasist");
+                    if (createTableDb(result)) {
+                        setupDlgScoreBoard();
                     } else {
+                        JOptionPane.showMessageDialog(view, "Andmeid pole andmebaasis!");
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(view, "Viga andmebaasiga: " + ex.getMessage());
+                }
+            }
+        }
+
+        // Kui kasutaja soovib näha edetabelit põhivaates (mitte eraldi aknas)
+        else {
+            if (view.getRdoFile().isSelected()) {
+                result = model.readFromFile();
+                JTable table = createTableFromFileData(result);
+                String title = result.isEmpty() ? "Edetabel failist (tühi)" : "Edetabel failist";
+                createTableToMainView(table, title);
+                if (result.isEmpty()) {
+                    JOptionPane.showMessageDialog(view, "Andmeid pole failis!");
+                }
+            } else { // andmebaas
+                try (Database db = new Database(model)) {
+                    result = db.select(model.getBoardSize());
+                    JTable table = createTableFromFileData(result);
+                    String title = result.isEmpty() ? "Edetabel andmebaasist (tühi)" : "Edetabel andmebaasist";
+                    createTableToMainView(table, title);
+                    if (result.isEmpty()) {
                         JOptionPane.showMessageDialog(view, "Andmebaasi tabel on tühi!");
                     }
                 } catch (Exception ex) {
@@ -82,11 +81,9 @@ public class MyScoreBoardListener implements ActionListener {
                     JOptionPane.showMessageDialog(view, "Viga andmebaasiga: " + ex.getMessage());
                 }
             }
-
-
-
         }
     }
+
 
 
 
@@ -235,16 +232,20 @@ public class MyScoreBoardListener implements ActionListener {
 
 
     private JTable createTableFromFileData(ArrayList<ScoreData> result) {
-        if (result.isEmpty()) return null;
-
-        Collections.sort(result);
-        String[][] data = new String[result.size()][5];
-        for (int i = 0; i < result.size(); i++) {
-            data[i][0] = result.get(i).getName();
-            data[i][1] = result.get(i).formatGameTime(result.get(i).getTime());
-            data[i][2] = String.valueOf(result.get(i).getClicks());
-            data[i][3] = String.valueOf(result.get(i).getBoard());
-            data[i][4] = result.get(i).getPlayedTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+        String[][] data;
+        if (result.isEmpty()) {
+            // Loo tühi andmestik, aga koos veerunimedega
+            data = new String[0][model.getColumnNames().length];
+        } else {
+            Collections.sort(result);
+            data = new String[result.size()][5];
+            for (int i = 0; i < result.size(); i++) {
+                data[i][0] = result.get(i).getName();
+                data[i][1] = result.get(i).formatGameTime(result.get(i).getTime());
+                data[i][2] = String.valueOf(result.get(i).getClicks());
+                data[i][3] = String.valueOf(result.get(i).getBoard());
+                data[i][4] = result.get(i).getPlayedTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+            }
         }
 
         DefaultTableModel model = new DefaultTableModel(data, this.model.getColumnNames()) {
